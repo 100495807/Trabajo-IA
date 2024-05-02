@@ -12,8 +12,16 @@ class FuzzySet:
     label = ""  # label of the specific fuzzy set (ex.: Young)
     x = []  # list of abscissas, from xmin to xmax, 1 by 1
     y = []  # list of ordinates (float)
-    memDegree = 0  # membership degree for the current application
 
+    def calculateMembershipDegree(self, value):
+        if value < min(self.x) or value > max(self.x):
+            return 0  # El valor está fuera del rango del conjunto difuso
+        for i in range(len(self.x) - 1):
+            if value >= self.x[i] and value <= self.x[i + 1]:
+                # Calcular el grado de pertenencia interpolando linealmente entre dos puntos
+                slope = (self.y[i + 1] - self.y[i]) / (self.x[i + 1] - self.x[i])
+                return self.y[i] + slope * (value - self.x[i])
+        return 0  # En caso de que no se encuentre un valor coincidente
     def printSet(self):
         print("var:       ", self.var)
         print("label:     ", self.label)

@@ -1,8 +1,19 @@
 #!/usr/bin/env python3
 import numpy as np
-import skfuzzy as skf
 import matplotlib.pyplot as plt
 from MFIS_Classes import *
+
+
+def trapmf(x, a, b, c, d):
+    """
+    This function generates trapezoidal membership function values
+    """
+    y = np.zeros(len(x))
+    y[(a <= x) & (x < b)] = (x[(a <= x) & (x < b)] - a) / (b - a)
+    y[(b <= x) & (x <= c)] = 1
+    y[(c < x) & (x <= d)] = (d - x[(c < x) & (x <= d)]) / (d - c)
+    return y
+
 
 def readFuzzySetsFile(fleName):
     """
@@ -26,8 +37,8 @@ def readFuzzySetsFile(fleName):
         b = int(elementsList[4])
         c = int(elementsList[5])
         d = int(elementsList[6])
-        x = np.arange(xmin,xmax,1)
-        y = skf.trapmf(x, [a, b, c, d])
+        x = np.arange(xmin, xmax, 1)
+        y = trapmf(x, a, b, c, d)
         fuzzySet.x = x
         fuzzySet.y = y
         fuzzySetsDict.update( { setid : fuzzySet } )
@@ -37,7 +48,7 @@ def readFuzzySetsFile(fleName):
     return fuzzySetsDict
 
 def readRulesFile():
-    inputFile = open('Files/Rules.txt', 'r')
+    inputFile = open('Rules.txt', 'r')
     rules = RuleList()
     line = inputFile.readline()
     while line != '':
@@ -56,7 +67,7 @@ def readRulesFile():
     return rules
 
 def readApplicationsFile():
-    inputFile = open('Files/Applications.txt', 'r')
+    inputFile = open('Applications.txt', 'r')
     applicationList = []
     line = inputFile.readline()
     while line != '':
@@ -66,6 +77,22 @@ def readApplicationsFile():
         app.data = []
         for i in range(1, len(elementsList), 2):
             app.data.append([elementsList[i], int(elementsList[i+1])])
+        applicationList.append(app)
+        line = inputFile.readline()
+    inputFile.close()
+    return applicationList
+
+def readauxFile():
+    inputFile = open('aux.txt', 'r')
+    applicationList = []
+    line = inputFile.readline()
+    while line != '':
+        elementsList = line.split(', ')
+        app = Application()
+        app.appId = elementsList[0]
+        app.data = []
+        for i in range(1, len(elementsList) - 1, 2):
+            app.data.append([elementsList[i], elementsList[i+1]])  # No necesitamos convertir los valores a enteros
         applicationList.append(app)
         line = inputFile.readline()
     inputFile.close()
